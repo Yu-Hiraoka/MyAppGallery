@@ -12942,6 +12942,7 @@ blockquote footer {
   border: none;
   margin: 0;
   opacity: 1;
+  content: "＜";
 }
 .mfp-arrow-right:before {
   border-left: none;
@@ -12955,6 +12956,7 @@ blockquote footer {
   border: none;
   margin: 0;
   opacity: 1;
+  content: "＞";
 }
 .mfp-bottom-bar {
   margin-top: -24px;
@@ -13130,7 +13132,7 @@ button.mfp-close:active {
 }
 button.mfp-close:before,
 button.mfp-close:active:before {
-  content: "\f00d";
+  content: "✖️";
   color: var(--black);
   font-family: "Font Awesome 6 Free";
   font-size: 20px;
