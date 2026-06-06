@@ -1,0 +1,711 @@
+<!doctype html>
+<html lang="ja">
+<!--
+  Design Log v3 — handy-stopwatch.html
+  ─────────────────────────────────────
+  Hero:     "HANDY"(letter-spacing:.4em) + "STOPWATCH" as ghost outlined text
+            behind boxed image. Both lines extend beyond 1080px image on sides.
+  Features: Numbered editorial list (number baseline + title / description).
+  Footer:   Identical to index.html.
+  ─────────────────────────────────────
+-->
+<head>
+    <title>Handy Stopwatch — Yu Hiraoka's Portfolio</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="images/favicon-180.png">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg:     #000;
+            --s1:     #0c0c0f;
+            --s2:     #111116;
+            --border: rgba(255,255,255,0.07);
+            --text:   #f0f0f5;
+            --muted:  #6e6e73;
+            --blue:   #2997ff;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+                         "Helvetica Neue", Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        /* ═══ NAV ═══ */
+        nav {
+            position: fixed;
+            inset: 0 0 auto 0;
+            z-index: 200;
+            height: 52px;
+            display: flex;
+            align-items: center;
+            padding: 0 44px;
+            background: rgba(0,0,0,0.72);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+        .nav-brand {
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(255,255,255,.88);
+            text-decoration: none;
+            flex-shrink: 0;
+            transition: opacity .15s;
+        }
+        .nav-brand:hover { opacity: .72; }
+        .nav-sep {
+            margin: 0 18px;
+            color: rgba(255,255,255,.18);
+            font-size: 15px;
+            font-weight: 300;
+            flex-shrink: 0;
+            user-select: none;
+        }
+        .nav-products {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+            margin-right: auto;
+        }
+        .nav-products a {
+            font-size: 12px;
+            font-weight: 500;
+            color: rgba(255,255,255,.48);
+            text-decoration: none;
+            white-space: nowrap;
+            position: relative;
+            padding-bottom: 1px;
+            transition: color .18s;
+        }
+        .nav-products a::after {
+            content: '';
+            position: absolute;
+            bottom: -1px; left: 0;
+            width: 0; height: 1px;
+            background: rgba(255,255,255,.45);
+            transition: width .24s ease;
+        }
+        .nav-products a:hover { color: rgba(255,255,255,.85); }
+        .nav-products a:hover::after { width: 100%; }
+        .nav-products a.active { color: #fff; font-weight: 600; }
+        .nav-products a.active::after { width: 100%; background: #fff; }
+        .nav-cta {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--blue);
+            text-decoration: none;
+            flex-shrink: 0;
+            transition: opacity .15s;
+        }
+        .nav-cta:hover { opacity: .72; }
+        @media (max-width: 740px) {
+            nav { padding: 0 20px; }
+            .nav-sep, .nav-products { display: none; }
+        }
+
+        /* ═══ HERO ═══ */
+        .hero {
+            margin-top: 52px;
+            background: var(--bg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* ═══ TICKER ═══ */
+        .hero-tickers {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-evenly;
+            pointer-events: none;
+            user-select: none;
+            overflow: hidden;
+        }
+        .ticker-row {
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+        }
+        /* Each inner: original items + exact duplicate → -50% loops seamlessly */
+        .ticker-inner {
+            display: flex;
+            align-items: center;
+            width: max-content;
+            flex-shrink: 0;
+        }
+        .ticker-inner.to-left  { animation: tickLeft  26s linear infinite; }
+        .ticker-inner.to-right { animation: tickRight 26s linear infinite; }
+        @keyframes tickLeft  {
+            from { transform: translateX(0); }
+            to   { transform: translateX(-50%); }
+        }
+        @keyframes tickRight {
+            from { transform: translateX(-50%); }
+            to   { transform: translateX(0); }
+        }
+        .t-text {
+            font-size: clamp(72px, 9.5vw, 148px);
+            font-weight: 900;
+            letter-spacing: -.04em;
+            line-height: 1;
+            color: transparent;
+            -webkit-text-stroke: 1.5px rgba(255,255,255,.17);
+            white-space: nowrap;
+        }
+        .t-sep {
+            color: rgba(255,255,255,.1);
+            font-size: clamp(16px, 2vw, 28px);
+            margin: 0 clamp(20px, 2.4vw, 44px);
+            white-space: nowrap;
+        }
+
+        /* Image + DL on top */
+        .hero-fg {
+            position: relative;
+            z-index: 1;
+        }
+        .hero-box {
+            max-width: 1080px;
+            margin: 0 auto;
+            padding: 56px 40px 0;
+        }
+        .hero-box img {
+            width: 100%;
+            display: block;
+            border-radius: 14px;
+        }
+        .hero-dl {
+            padding: 28px 24px 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* ── App Store badge (white / dark-bg向け) ── */
+        .badge-appstore {
+            display: inline-flex;
+            align-items: center;
+            gap: 11px;
+            background: #fff;
+            color: #000;
+            padding: 10px 22px 10px 18px;
+            border-radius: 13px;
+            text-decoration: none;
+            transition: opacity .2s, transform .15s;
+        }
+        .badge-appstore:hover { opacity: .88; transform: translateY(-1px); }
+        .badge-apple-logo { width: 22px; height: 27px; flex-shrink: 0; }
+        .badge-label { display: flex; flex-direction: column; gap: 0; line-height: 1; }
+        .badge-label-top {
+            font-size: 9.5px; font-weight: 400;
+            letter-spacing: .04em; opacity: .75;
+        }
+        .badge-label-bottom {
+            font-size: 21px; font-weight: 700;
+            letter-spacing: -.4px; line-height: 1.15;
+        }
+        .dl-note { font-size: 11px; color: rgba(255,255,255,.28); }
+
+        @media (max-width: 640px) {
+            .hero-box { padding: 20px 0 0; }
+            .hero-box img { border-radius: 0; }
+            .t-text { font-size: clamp(52px, 14vw, 100px); }
+        }
+
+        /* ═══ META ═══ */
+        .meta {
+            background: var(--s1);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+        .meta-inner {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px 24px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            text-align: center;
+        }
+        .meta-cell {
+            padding: 0 8px;
+            border-right: 1px solid var(--border);
+        }
+        .meta-cell:last-child { border-right: none; }
+        .meta-lbl {
+            font-size: 9px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            color: var(--muted);
+            margin-bottom: 4px;
+        }
+        .meta-val {
+            font-size: 13px;
+            font-weight: 500;
+            color: #fff;
+        }
+        @media (max-width: 440px) {
+            .meta-inner { grid-template-columns: repeat(2,1fr); gap: 16px 0; }
+            .meta-cell { border-right: none; }
+        }
+
+        /* ═══ FEATURES — scroll reveal: line draw → count-up → content ═══ */
+        .features {
+            background: var(--bg);
+            padding: 88px 44px 104px;
+        }
+        .feat-header { max-width: 840px; margin: 0 auto 80px; }
+        .eyebrow {
+            font-size: 10px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: .14em; color: var(--blue);
+        }
+        .feat-list { max-width: 840px; margin: 0 auto; }
+
+        /* Item: flex column so line sits above the grid */
+        .feat-item { display: flex; flex-direction: column; padding-bottom: 60px; }
+
+        /* ① Line draws left → right on scroll */
+        .feat-line {
+            height: 1px;
+            background: rgba(255,255,255,.13);
+            margin-bottom: 48px;
+            transform-origin: left center;
+            transform: scaleX(0);
+            transition: transform .9s cubic-bezier(.25,1,.5,1);
+        }
+        .feat-item.visible .feat-line { transform: scaleX(1); }
+
+        /* Grid: number col | content col */
+        .feat-grid {
+            display: grid;
+            grid-template-columns: 160px 1fr;
+            column-gap: 56px;
+            align-items: start;
+        }
+
+        /* ② Number counts up from 00 */
+        .feat-num {
+            font-size: clamp(80px, 10vw, 140px);
+            font-weight: 900;
+            letter-spacing: -.06em;
+            line-height: 1;
+            color: rgba(255,255,255,.18);
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+            opacity: 0;
+            transition: opacity .3s ease .45s;
+        }
+        .feat-item.visible .feat-num { opacity: 1; }
+
+        /* ③ Icon + title row */
+        .feat-name-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+            opacity: 0;
+            transform: translateY(14px);
+            transition: opacity .5s ease .62s, transform .5s ease .62s;
+        }
+        .feat-item.visible .feat-name-row { opacity: 1; transform: translateY(0); }
+
+        .feat-icon-sm {
+            width: 30px; height: 30px;
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .feat-icon-sm svg { width: 14px; height: 14px; }
+
+        .feat-name {
+            font-size: clamp(19px, 2.4vw, 28px);
+            font-weight: 500;
+            letter-spacing: -.25px;
+            line-height: 1.15;
+            color: #fff;
+        }
+
+        /* ④ Description */
+        .feat-desc {
+            font-size: 13.5px;
+            font-weight: 300;
+            color: var(--muted);
+            line-height: 1.78;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity .5s ease .76s, transform .5s ease .76s;
+        }
+        .feat-item.visible .feat-desc { opacity: 1; transform: translateY(0); }
+
+        .feat-sub {
+            margin-top: 10px;
+            font-size: 11px;
+            color: rgba(255,255,255,.18);
+            line-height: 1.8;
+            opacity: 0;
+            transition: opacity .4s ease .9s;
+        }
+        .feat-item.visible .feat-sub { opacity: 1; }
+
+        @media (max-width: 640px) {
+            .features { padding: 64px 20px 80px; }
+            .feat-grid { grid-template-columns: 1fr; gap: 16px; }
+            .feat-num { text-align: left; font-size: clamp(56px, 18vw, 96px); }
+            .feat-item { padding-bottom: 40px; }
+            .feat-line { margin-bottom: 32px; }
+        }
+
+        /* ═══ SCROLL PROGRESS ═══ */
+        #scroll-progress {
+            position: fixed; top: 52px; left: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--blue) 0%, #bf5af2 100%);
+            width: 0; z-index: 199;
+            pointer-events: none;
+            transition: width .08s linear;
+        }
+
+        /* ═══ META ICONS ═══ */
+        .meta-icon-svg {
+            width: 10px; height: 10px;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 3px;
+            margin-bottom: 2px;
+            opacity: .45;
+        }
+
+        /* ═══ FOOTER — identical to index.html ═══ */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 20px 44px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .footer-links { display: flex; gap: 18px; list-style: none; }
+        .footer-links a {
+            font-size: 11px;
+            color: var(--muted);
+            text-decoration: none;
+            transition: color .15s;
+        }
+        .footer-links a:hover { color: #fff; }
+        .footer-copy { font-size: 11px; color: var(--muted); }
+        @media (max-width: 520px) {
+            footer { padding: 20px; flex-direction: column; align-items: flex-start; gap: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+    <a href="index.html" class="nav-brand">Yu Hiraoka's Portfolio</a>
+    <span class="nav-sep">/</span>
+    <ul class="nav-products">
+        <li><a href="handy-stopwatch.html" class="active">Handy Stopwatch</a></li>
+        <li><a href="https://apps.apple.com/jp/app/%E9%9F%B3%E3%82%AF%E3%83%AD%E3%83%83%E3%82%AF/id6504010049"
+               target="_blank" rel="noopener">音クロック</a></li>
+        <li><a href="https://apps.apple.com/jp/app/handy-counter-%E9%9F%B3%E9%87%8F%E3%83%9C%E3%82%BF%E3%83%B3%E3%81%A7%E3%82%AB%E3%82%A6%E3%83%B3%E3%83%88/id6520395429"
+               target="_blank" rel="noopener">Handy Counter</a></li>
+    </ul>
+    <a href="https://apps.apple.com/jp/app/handy-stopwatch/id6504489579"
+       target="_blank" rel="noopener" class="nav-cta">ダウンロード ↗</a>
+</nav>
+
+<div id="scroll-progress"></div>
+
+<!-- HERO -->
+<section class="hero">
+
+    <!-- Infinite ticker: 2 rows, opposite directions -->
+    <div class="hero-tickers" aria-hidden="true">
+
+        <!-- Row 1 → left  26s -->
+        <div class="ticker-row">
+            <div class="ticker-inner to-left" style="animation-duration:26s">
+                <span class="t-text">HANDY STOPWATCH</span><span class="t-sep">·</span>
+                <span class="t-text">HANDY STOPWATCH</span><span class="t-sep">·</span>
+                <span class="t-text">HANDY STOPWATCH</span><span class="t-sep">·</span>
+                <span class="t-text">HANDY STOPWATCH</span><span class="t-sep">·</span>
+                <span class="t-text">HANDY STOPWATCH</span><span class="t-sep">·</span>
+                <span class="t-text">HANDY STOPWATCH</span><span class="t-sep">·</span>
+                <span class="t-text">HANDY STOPWATCH</span><span class="t-sep">·</span>
+                <span class="t-text">HANDY STOPWATCH</span><span class="t-sep">·</span>
+            </div>
+        </div>
+
+        <!-- Row 2 → right  22s -->
+        <div class="ticker-row">
+            <div class="ticker-inner to-right" style="animation-duration:22s">
+                <span class="t-text">HANDY STOPWATCH</span><span class="t-sep">·</span>
+                <span class="t-text">HANDY STOPWATCH</span><span class="t-sep">·</span>
+                <span class="t-text">HANDY STOPWATCH</span><span class="t-sep">·</span>
+                <span class="t-text">HANDY STOPWATCH</span><span class="t-sep">·</span>
+                <span class="t-text">HANDY STOPWATCH</span><span class="t-sep">·</span>
+                <span class="t-text">HANDY STOPWATCH</span><span class="t-sep">·</span>
+                <span class="t-text">HANDY STOPWATCH</span><span class="t-sep">·</span>
+                <span class="t-text">HANDY STOPWATCH</span><span class="t-sep">·</span>
+            </div>
+        </div>
+
+        <!-- Row 3 → left  30s -->
+        <div class="ticker-row">
+            <div class="ticker-inner to-left" style="animation-duration:30s">
+                <span class="t-text">HANDY STOPWATCH</span><span class="t-sep">·</span>
+                <span class="t-text">HANDY STOPWATCH</span><span class="t-sep">·</span>
+                <span class="t-text">HANDY STOPWATCH</span><span class="t-sep">·</span>
+                <span class="t-text">HANDY STOPWATCH</span><span class="t-sep">·</span>
+                <span class="t-text">HANDY STOPWATCH</span><span class="t-sep">·</span>
+                <span class="t-text">HANDY STOPWATCH</span><span class="t-sep">·</span>
+                <span class="t-text">HANDY STOPWATCH</span><span class="t-sep">·</span>
+                <span class="t-text">HANDY STOPWATCH</span><span class="t-sep">·</span>
+            </div>
+        </div>
+
+        <!-- Row 4 → right  24s -->
+        <div class="ticker-row">
+            <div class="ticker-inner to-right" style="animation-duration:24s">
+                <span class="t-text">HANDY STOPWATCH</span><span class="t-sep">·</span>
+                <span class="t-text">HANDY STOPWATCH</span><span class="t-sep">·</span>
+                <span class="t-text">HANDY STOPWATCH</span><span class="t-sep">·</span>
+                <span class="t-text">HANDY STOPWATCH</span><span class="t-sep">·</span>
+                <span class="t-text">HANDY STOPWATCH</span><span class="t-sep">·</span>
+                <span class="t-text">HANDY STOPWATCH</span><span class="t-sep">·</span>
+                <span class="t-text">HANDY STOPWATCH</span><span class="t-sep">·</span>
+                <span class="t-text">HANDY STOPWATCH</span><span class="t-sep">·</span>
+            </div>
+        </div>
+
+        <!-- Row 5 → left  28s -->
+        <div class="ticker-row">
+            <div class="ticker-inner to-left" style="animation-duration:28s">
+                <span class="t-text">HANDY STOPWATCH</span><span class="t-sep">·</span>
+                <span class="t-text">HANDY STOPWATCH</span><span class="t-sep">·</span>
+                <span class="t-text">HANDY STOPWATCH</span><span class="t-sep">·</span>
+                <span class="t-text">HANDY STOPWATCH</span><span class="t-sep">·</span>
+                <span class="t-text">HANDY STOPWATCH</span><span class="t-sep">·</span>
+                <span class="t-text">HANDY STOPWATCH</span><span class="t-sep">·</span>
+                <span class="t-text">HANDY STOPWATCH</span><span class="t-sep">·</span>
+                <span class="t-text">HANDY STOPWATCH</span><span class="t-sep">·</span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Image + CTA above tickers -->
+    <div class="hero-fg">
+        <div class="hero-box">
+            <img src="images/card_handy_stopwatch.jpg"
+                 alt="Handy Stopwatch — 音量ボタンで完結するストップウォッチ">
+        </div>
+        <div class="hero-dl">
+            <a href="https://apps.apple.com/jp/app/handy-stopwatch/id6504489579"
+               target="_blank" rel="noopener" class="badge-appstore">
+                <!-- Apple logo SVG -->
+                <svg class="badge-apple-logo" viewBox="0 0 170 170" fill="currentColor"
+                     xmlns="http://www.w3.org/2000/svg">
+                    <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.2-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.93.21-9.84-1.96-14.75-6.52-3.13-2.73-7.04-7.41-11.73-14.04-5.03-7.08-9.17-15.29-12.41-24.65-3.47-10.11-5.21-19.9-5.21-29.38 0-10.86 2.35-20.22 7.05-28.07 3.69-6.3 8.61-11.27 14.76-14.93s12.79-5.51 19.95-5.63c3.91 0 9.05 1.21 15.43 3.59 6.36 2.39 10.45 3.6 12.24 3.6 1.34 0 5.88-1.42 13.57-4.24 7.27-2.62 13.42-3.7 18.45-3.27 13.63 1.1 23.87 6.47 30.68 16.15-12.19 7.39-18.22 17.73-18.1 31 .11 10.34 3.86 18.94 11.23 25.77 3.34 3.17 7.07 5.62 11.22 7.36-.9 2.61-1.85 5.11-2.86 7.51zM119.11 7.24c0 8.1-2.96 15.67-8.86 22.67-7.12 8.32-15.73 13.13-25.07 12.37a25.2 25.2 0 0 1-.19-3.07c0-7.78 3.39-16.1 9.4-22.91 3-3.45 6.82-6.31 11.45-8.6 4.62-2.25 8.99-3.5 13.1-3.71.12 1.02.17 2.04.17 3.25z"/>
+                </svg>
+                <div class="badge-label">
+                    <span class="badge-label-top">Download on the</span>
+                    <span class="badge-label-bottom">App Store</span>
+                </div>
+            </a>
+            <span class="dl-note">無料 · iOS対応</span>
+        </div>
+    </div>
+</section>
+
+<!-- META -->
+<div class="meta">
+    <div class="meta-inner">
+        <div class="meta-cell">
+            <div class="meta-lbl"><svg class="meta-icon-svg" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M1 1h4l5.5 5.5-4 4L1 5V1z"/><circle cx="3.5" cy="3.5" r=".6" fill="currentColor" stroke="none"/></svg>カテゴリ</div>
+            <div class="meta-val">スポーツ</div>
+        </div>
+        <div class="meta-cell">
+            <div class="meta-lbl"><svg class="meta-icon-svg" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="1" y="2.5" width="10" height="8.5" rx="1.5"/><path d="M4 1v3M8 1v3M1 5.5h10"/></svg>リリース</div>
+            <div class="meta-val">2024/06/18</div>
+        </div>
+        <div class="meta-cell">
+            <div class="meta-lbl"><svg class="meta-icon-svg" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="6" cy="6" r="5"/><path d="M6 1c-2 2-2 8 0 10M6 1c2 2 2 8 0 10M1 6h10"/></svg>対応言語</div>
+            <div class="meta-val">6言語</div>
+        </div>
+        <div class="meta-cell">
+            <div class="meta-lbl"><svg class="meta-icon-svg" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="6" cy="4" r="2.5"/><path d="M1 11c0-2.76 2.24-5 5-5s5 2.24 5 5"/></svg>開発者</div>
+            <div class="meta-val">Yu Hiraoka</div>
+        </div>
+    </div>
+</div>
+
+<!-- FEATURES -->
+<section class="features">
+    <div class="feat-header">
+        <p class="eyebrow">Features</p>
+    </div>
+    <div class="feat-list">
+
+        <div class="feat-item">
+            <div class="feat-line"></div>
+            <div class="feat-grid">
+                <span class="feat-num" data-n="1">00</span>
+                <div>
+                    <div class="feat-name-row">
+                        <div class="feat-icon-sm" style="background:rgba(41,151,255,.14);">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#2997ff" stroke-width="2"
+                                 stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+                                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                            </svg>
+                        </div>
+                        <p class="feat-name">音量ボタンで計測</p>
+                    </div>
+                    <p class="feat-desc">iPhoneの音量ボタンを押すだけでタイムを計測できます。手が濡れていても、画面を見なくても正確に動作します。</p>
+                    <p class="feat-sub">＋ → スタート / ストップ　　　− → ラップ / リセット</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="feat-item">
+            <div class="feat-line"></div>
+            <div class="feat-grid">
+                <span class="feat-num" data-n="2">00</span>
+                <div>
+                    <div class="feat-name-row">
+                        <div class="feat-icon-sm" style="background:rgba(255,69,58,.12);">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#ff453a" stroke-width="2"
+                                 stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="23 7 16 12 23 17 23 7"/>
+                                <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                            </svg>
+                        </div>
+                        <p class="feat-name">動画と同時計測</p>
+                    </div>
+                    <p class="feat-desc">RECボタンで動画撮影とタイム計測を同時実行。タイムスタンプ付きの映像が自動保存され、フォームとタイムを後から確認できます。</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="feat-item">
+            <div class="feat-line"></div>
+            <div class="feat-grid">
+                <span class="feat-num" data-n="3">00</span>
+                <div>
+                    <div class="feat-name-row">
+                        <div class="feat-icon-sm" style="background:rgba(50,215,75,.1);">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#32d74b" stroke-width="2"
+                                 stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="18" y1="20" x2="18" y2="10"/>
+                                <line x1="12" y1="20" x2="12" y2="4"/>
+                                <line x1="6"  y1="20" x2="6"  y2="14"/>
+                            </svg>
+                        </div>
+                        <p class="feat-name">タイムを自動計算</p>
+                    </div>
+                    <p class="feat-desc">開始タイム・サイクル・先頭との差を設定するだけで、各選手の練習タイムを自動算出。色分けで複数選手を同時管理できます。</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="feat-item">
+            <div class="feat-line"></div>
+            <div class="feat-grid">
+                <span class="feat-num" data-n="4">00</span>
+                <div>
+                    <div class="feat-name-row">
+                        <div class="feat-icon-sm" style="background:rgba(255,214,10,.09);">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#ffd60a" stroke-width="2"
+                                 stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="23 4 23 10 17 10"/>
+                                <polyline points="1 20 1 14 7 14"/>
+                                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                            </svg>
+                        </div>
+                        <p class="feat-name">複数端末で同期</p>
+                    </div>
+                    <p class="feat-desc">複数のiPhoneを同期させ、ホストが計測を開始するとすべての端末のタイマーが同時にスタートします。</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- FOOTER — identical to index.html -->
+<script>
+(function() {
+    /* ─── scroll progress ─── */
+    var prog = document.getElementById('scroll-progress');
+    if (prog) {
+        window.addEventListener('scroll', function() {
+            var h = document.body.scrollHeight - window.innerHeight;
+            if (h > 0) prog.style.width = Math.min(window.scrollY / h * 100, 100) + '%';
+        }, { passive: true });
+    }
+
+    /* ─── feat-item reveal + count-up ─── */
+    var items = document.querySelectorAll('.feat-item');
+    if ('IntersectionObserver' in window) {
+        var obs = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (!entry.isIntersecting) return;
+                var el = entry.target;
+                el.classList.add('visible');
+
+                var numEl  = el.querySelector('.feat-num');
+                var target = numEl ? parseInt(numEl.dataset.n, 10) : 0;
+                if (numEl && target > 0) {
+                    /* start count-up when number fades in (~750ms after visible) */
+                    setTimeout(function() {
+                        var steps = 18, step = 0;
+                        var iv = setInterval(function() {
+                            step++;
+                            numEl.textContent =
+                                String(Math.round(target * step / steps)).padStart(2, '0');
+                            if (step >= steps) {
+                                numEl.textContent = String(target).padStart(2, '0');
+                                clearInterval(iv);
+                            }
+                        }, 700 / steps);
+                    }, 750);
+                }
+                obs.unobserve(el);
+            });
+        }, { rootMargin: '0px 0px -60px 0px', threshold: 0.15 });
+
+        items.forEach(function(el) { obs.observe(el); });
+    } else {
+        items.forEach(function(el) { el.classList.add('visible'); });
+    }
+})();
+</script>
+<footer>
+    <ul class="footer-links">
+        <li><a href="handy-stopwatch.html">Handy Stopwatch</a></li>
+        <li><a href="https://apps.apple.com/jp/app/%E9%9F%B3%E3%82%AF%E3%83%AD%E3%83%83%E3%82%AF/id6504010049"
+               target="_blank" rel="noopener">音クロック</a></li>
+        <li><a href="https://apps.apple.com/jp/app/handy-counter-%E9%9F%B3%E9%87%8F%E3%83%9C%E3%82%BF%E3%83%B3%E3%81%A7%E3%82%AB%E3%82%A6%E3%83%B3%E3%83%88/id6520395429"
+               target="_blank" rel="noopener">Handy Counter</a></li>
+    </ul>
+    <span class="footer-copy">© 2024–2026 Yu Hiraoka</span>
+</footer>
+
+</body>
+</html>

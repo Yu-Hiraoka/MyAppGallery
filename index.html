@@ -1,215 +1,584 @@
-﻿<!doctype html>
-<html class="no-js" lang="ja">
-    <head>
-        <title>APP GALLERY</title>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <meta name="author" content="ThemeZaa">
-        <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-        <!-- favicon icon -->
-        <link rel="shortcut icon" href="images/icon.png">
-        <!-- google fonts preconnect -->
-        <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <!-- style sheets and font icons  -->
-        <link rel="stylesheet" href="css/vendors.min.css"/>
-        <link rel="stylesheet" href="css/icon.min.css"/>
-        <link rel="stylesheet" href="css/style.css"/>
-        <link rel="stylesheet" href="css/responsive.css"/>
-        <link rel="stylesheet" href="css/architecture.css" />
-    </head>
+<!doctype html>
+<html lang="ja">
+<head>
+    <title>Yu Hiraoka — iOS Developer</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="images/favicon-180.png">
     <style>
-        @media (max-width: 991px) {
-            .navbar {
-                display: none;
-            }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg:     #000;
+            --s2:     #111116;
+            --border: rgba(255,255,255,0.07);
+            --text:   #f0f0f5;
+            --muted:  #6e6e73;
+            --blue:   #2997ff;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+                         "Helvetica Neue", Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        /* ═══ UNIVERSAL NAV ═══ */
+        nav {
+            position: fixed;
+            inset: 0 0 auto 0;
+            z-index: 200;
+            height: 52px;
+            display: flex;
+            align-items: center;
+            padding: 0 44px;
+            gap: 0;
+            background: rgba(0,0,0,0.72);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+        .nav-brand {
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(255,255,255,.88);
+            text-decoration: none;
+            white-space: nowrap;
+            flex-shrink: 0;
+            transition: opacity .15s;
+        }
+        .nav-brand:hover { opacity: .72; }
+
+        /* creative separator */
+        .nav-sep {
+            margin: 0 18px;
+            color: rgba(255,255,255,.18);
+            font-size: 15px;
+            font-weight: 300;
+            flex-shrink: 0;
+            user-select: none;
+        }
+
+        /* Left-aligned product links */
+        .nav-products {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+            margin-right: auto;  /* pushes App Store to far right */
+        }
+        .nav-products a {
+            font-size: 12px;
+            font-weight: 500;
+            color: rgba(255,255,255,.48);
+            text-decoration: none;
+            white-space: nowrap;
+            position: relative;
+            padding-bottom: 1px;
+            transition: color .18s;
+        }
+        /* underline slide-in on hover */
+        .nav-products a::after {
+            content: '';
+            position: absolute;
+            bottom: -1px; left: 0;
+            width: 0; height: 1px;
+            background: rgba(255,255,255,.45);
+            transition: width .24s ease;
+        }
+        .nav-products a:hover { color: rgba(255,255,255,.85); }
+        .nav-products a:hover::after { width: 100%; }
+        .nav-products a.active {
+            color: #fff;
+            font-weight: 600;
+        }
+        .nav-products a.active::after {
+            width: 100%;
+            background: #fff;
+        }
+
+        /* Right: App Store CTA */
+        .nav-cta {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--blue);
+            text-decoration: none;
+            flex-shrink: 0;
+            transition: opacity .15s;
+        }
+        .nav-cta:hover { opacity: .72; }
+
+        @media (max-width: 740px) {
+            nav { padding: 0 20px; }
+            .nav-sep, .nav-products { display: none; }
+        }
+
+        /* ═══ CURSOR GLOW ═══ */
+        #glow {
+            position: fixed;
+            width: 600px; height: 600px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(41,151,255,.055) 0%, transparent 70%);
+            pointer-events: none;
+            transform: translate(-50%,-50%);
+            z-index: 1;
+            transition: left .12s ease, top .12s ease;
+        }
+
+        /* ═══ HERO ═══ */
+        .hero {
+            position: relative;
+            height: 100svh;
+            min-height: 600px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(110px);
+            pointer-events: none;
+        }
+        .blob-a {
+            width: 540px; height: 540px;
+            background: radial-gradient(circle, rgba(41,151,255,.18) 0%, transparent 70%);
+            top: -60px; left: -60px;
+            animation: blobA 22s ease-in-out infinite;
+        }
+        .blob-b {
+            width: 420px; height: 420px;
+            background: radial-gradient(circle, rgba(191,90,242,.14) 0%, transparent 70%);
+            bottom: 0; right: -60px;
+            animation: blobB 28s ease-in-out infinite;
+        }
+        @keyframes blobA {
+            0%,100% { transform: translate(0,0) scale(1); }
+            40%      { transform: translate(120px,100px) scale(1.1); }
+            70%      { transform: translate(-30px,140px) scale(.92); }
+        }
+        @keyframes blobB {
+            0%,100% { transform: translate(0,0) scale(1); }
+            55%      { transform: translate(-140px,-90px) scale(1.14); }
+        }
+
+        .hero-name {
+            position: relative;
+            z-index: 2;
+            font-size: clamp(62px, 13vw, 210px);
+            font-weight: 800;
+            letter-spacing: -.042em;
+            line-height: .92;
+            color: #fff;
+            text-align: center;
+            white-space: nowrap;
+            cursor: default;
+            user-select: none;
+        }
+        .hl {
+            display: inline-block;
+            transition: transform .32s cubic-bezier(.34,1.56,.64,1), color .24s;
+            will-change: transform, color;
+        }
+        .hl-sp { display: inline-block; width: .26em; }
+
+        .hero-role {
+            position: relative;
+            z-index: 2;
+            margin-top: 26px;
+            font-size: clamp(10px, 1.2vw, 13px);
+            font-weight: 500;
+            letter-spacing: .22em;
+            text-transform: uppercase;
+            color: var(--muted);
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity .7s ease, transform .7s ease;
+        }
+        .hero-role.show { opacity: 1; transform: translateY(0); }
+
+        .scroll-hint {
+            position: absolute;
+            bottom: 34px; left: 50%;
+            transform: translateX(-50%);
+            display: flex; flex-direction: column; align-items: center; gap: 8px;
+            opacity: 0;
+            animation: fadeIn .5s ease 2.8s forwards;
+        }
+        .scroll-hint span {
+            font-size: 9px; letter-spacing: .2em;
+            text-transform: uppercase; color: var(--muted);
+        }
+        .scroll-bar {
+            width: 1px; height: 36px;
+            background: var(--border); overflow: hidden; position: relative;
+        }
+        .scroll-pip {
+            width: 1px; height: 12px;
+            background: rgba(255,255,255,.32);
+            position: absolute; top: -12px;
+            animation: pip 2.2s ease-in-out 2.8s infinite;
+        }
+        @keyframes pip {
+            0%   { top: -12px; opacity: 0; }
+            20%  { opacity: 1; }
+            80%  { opacity: 1; }
+            100% { top: 36px; opacity: 0; }
+        }
+        @keyframes fadeIn { to { opacity: 1; } }
+
+        /* ═══ GALLERY ═══ */
+        .gallery {
+            padding: 96px 44px 120px;
+        }
+        .gallery-label {
+            text-align: center;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: .18em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 52px;
+        }
+        .gallery-grid {
+            max-width: 1060px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        /* Card */
+        .card {
+            background: var(--s2);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            overflow: hidden;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            transition: opacity .6s ease, transform .6s ease,
+                        border-color .25s, box-shadow .3s;
+            opacity: 0;
+            transform: translateY(32px);
+        }
+        .card.visible { opacity: 1; transform: translateY(0); }
+        .card:hover {
+            border-color: rgba(255,255,255,.15);
+            transform: translateY(-6px);
+            box-shadow: 0 32px 72px rgba(0,0,0,.65);
+        }
+        .card-img {
+            width: 100%;
+            aspect-ratio: 2208 / 1242;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .card-img img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform .5s ease;
+        }
+        .card:hover .card-img img { transform: scale(1.04); }
+        .card-body {
+            padding: 22px 22px 20px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+        .card-cat {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 5px;
+        }
+        .card-name {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: -.28px;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+        .card-desc {
+            font-size: 12.5px;
+            font-weight: 300;
+            color: var(--muted);
+            line-height: 1.65;
+            flex: 1;
+            margin-bottom: 18px;
+        }
+        .card-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11.5px;
+            font-weight: 600;
+            padding: 8px 15px;
+            border-radius: 980px;
+            text-decoration: none;
+            color: rgba(255,255,255,.82);
+            background: rgba(255,255,255,.08);
+            border: 1px solid rgba(255,255,255,.1);
+            transition: background .2s, border-color .2s;
+            width: fit-content;
+        }
+        .card-btn:hover {
+            background: rgba(255,255,255,.14);
+            border-color: rgba(255,255,255,.18);
+        }
+        .arr { font-size: 10px; transition: transform .2s; }
+        .card:hover .arr { transform: translateX(3px); }
+
+        /* ═══ SCROLL PROGRESS ═══ */
+        #scroll-progress {
+            position: fixed; top: 52px; left: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--blue) 0%, #bf5af2 100%);
+            width: 0; z-index: 199;
+            pointer-events: none;
+            transition: width .08s linear;
+        }
+
+        @media (max-width: 880px) {
+            .gallery-grid { grid-template-columns: 1fr; max-width: 480px; margin: 0 auto; }
+        }
+        @media (max-width: 520px) {
+            .gallery { padding: 80px 20px 100px; }
+        }
+
+        /* ═══ FOOTER ═══ */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 20px 44px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .footer-links { display: flex; gap: 18px; list-style: none; }
+        .footer-links a {
+            font-size: 11px; color: var(--muted);
+            text-decoration: none; transition: color .15s;
+        }
+        .footer-links a:hover { color: #fff; }
+        .footer-copy { font-size: 11px; color: var(--muted); }
+        @media (max-width: 520px) {
+            footer { padding: 20px; flex-direction: column; align-items: flex-start; gap: 12px; }
         }
     </style>
-    <body class="custom-cursor overflow-x-hidden" data-mobile-nav-style="classic">
-        <!-- start cursor -->
-        <div class="cursor-page-inner">
-            <div class="circle-cursor circle-cursor-inner"></div>
-            <div class="circle-cursor circle-cursor-outer"></div>
+</head>
+<body>
+
+<!-- ═══ NAV (universal) ═══ -->
+<nav>
+    <a href="index.html" class="nav-brand">Yu Hiraoka's Portfolio</a>
+    <span class="nav-sep">/</span>
+    <ul class="nav-products">
+        <li><a href="handy-stopwatch.html">Handy Stopwatch</a></li>
+        <li><a href="https://apps.apple.com/jp/app/%E9%9F%B3%E3%82%AF%E3%83%AD%E3%83%83%E3%82%AF/id6504010049"
+               target="_blank" rel="noopener">音クロック</a></li>
+        <li><a href="https://apps.apple.com/jp/app/handy-counter-%E9%9F%B3%E9%87%8F%E3%83%9C%E3%82%BF%E3%83%B3%E3%81%A7%E3%82%AB%E3%82%A6%E3%83%B3%E3%83%88/id6520395429"
+               target="_blank" rel="noopener">Handy Counter</a></li>
+    </ul>
+    <a href="https://apps.apple.com/jp/developer/yu-hiraoka/id1750657696"
+       target="_blank" rel="noopener" class="nav-cta">App Store ↗</a>
+</nav>
+<div id="scroll-progress"></div>
+
+<div id="glow"></div>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+    <div class="blob blob-a"></div>
+    <div class="blob blob-b"></div>
+    <div class="hero-name" id="hero-name"></div>
+    <p class="hero-role" id="hero-role">iOS Developer</p>
+    <div class="scroll-hint">
+        <span>Scroll</span>
+        <div class="scroll-bar"><div class="scroll-pip"></div></div>
+    </div>
+</section>
+
+<!-- ═══ GALLERY ═══ -->
+<section class="gallery" id="apps">
+    <p class="gallery-label">App Gallery</p>
+    <div class="gallery-grid">
+
+        <!-- Handy Stopwatch -->
+        <div class="card" onclick="location.href='handy-stopwatch.html'">
+            <div class="card-img">
+                <img src="images/card_handy_stopwatch.jpg" alt="Handy Stopwatch">
+            </div>
+            <div class="card-body">
+                <p class="card-cat"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="opacity:.5;vertical-align:middle;margin-right:4px;margin-bottom:1px"><circle cx="6" cy="6.5" r="4.5"/><polyline points="6 4.5 6 6.5 7.5 7.5"/><line x1="4" y1="1.5" x2="8" y2="1.5"/></svg>Sports</p>
+                <p class="card-name">Handy Stopwatch</p>
+                <p class="card-desc">音量ボタンだけで操作できる本格ストップウォッチ。動画撮影・複数端末同期・練習タイム自動計算を搭載。</p>
+                <a href="handy-stopwatch.html" class="card-btn"
+                   onclick="event.stopPropagation();">
+                    詳細を見る <span class="arr">→</span>
+                </a>
+            </div>
         </div>
-        <!-- end cursor -->
-        <!-- start header -->
-        <header>
-            <!-- start navigation -->
-            <nav class="navbar navbar-expand-lg header-transparent bg-transparent disable-fixed">
-                <div class="container-fluid">
-                    <div class="col-auto col-lg-2 me-lg-0 me-auto d-none d-lg-flex">
-                        <div class="header-icon">
-                            <div class="header-social-icon icon social-text-style-01">
-                                <a href="https://apps.apple.com/jp/developer/yu-hiraoka/id1750657696" target="_blank"><i></i>My Apple Store</a>
-                                <a href="https://apps.apple.com/jp/app/handy-stopwatch/id6504489579" target="_blank">Handy Stopwatch</a>
-                                <a href="https://apps.apple.com/jp/app/%E9%9F%B3%E3%82%AF%E3%83%AD%E3%83%83%E3%82%AF/id6504010049" target="_blank">音クロック</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </nav>
-        </header>
-        <!-- end header -->
-        <section class="page-title-big-typography cover-background p-0 one-fourth-screen bg-dark-gray" style="background-image: url(images/handy_stopwatch_1920*780.png)">
-        </section>
-        <!-- start section --> 
-        <section class="bg-dark-gray background-position-center-top overlap-height overflow-visible" style="background-image: url('../../Desktop/APPGALLERY/templete/html/images/demo-architecture-dotted-pattern.svg')">
-            <div class="container">
-                <div class="row overlap-gap-section">
-                    <div class="col-lg-4 col-md-6 sm-mb-30px text-center text-md-start">
-                        <span class="fs-22 fw-600 d-inline-block mb-25px ls-minus-05px text-white">Handy Stopwatch</span>
-                        <ul class="list-style-01 ps-0 pe-50px mb-0 sm-pe-0">
-                            <li class="pt-15px pb-15px"><span class="text-uppercase text-white pe-10px w-35 lg-w-45 sm-w-auto sm-me-20px d-inline-block fs-15 fw-500">Category</span>Sports</li>
-                            <li class="pt-15px pb-15px"><span class="text-uppercase text-white pe-10px w-35 lg-w-45 sm-w-auto sm-me-20px d-inline-block fs-15 fw-500">keywords</span>Stopwatch, Button, Swim</li>
-                            <li class="border-color-charcoal-grey pt-15px pb-15px"><span class="text-uppercase text-white pe-10px w-35 lg-w-45 sm-w-auto sm-me-20px d-inline-block fw-500 fs-15">Published</span>2024/06/18</li>
-                            <li class="border-color-charcoal-grey pt-15px pb-15px"><span class="text-uppercase text-white pe-10px w-35 lg-w-45 sm-w-auto sm-me-20px d-inline-block fw-500 fs-15">Developer</span>Yu Hiraoka</li>
-                        </ul>
-                    </div>
-                    <div class="col-lg-7 offset-lg-1 col-md-7 text-center text-md-start">
-                        <h4 class="fw-600 text-white"><span class="text-decoration-line-bottom d-inline-block">音量ボタンだけ</span>で操作できる<br>ストップウォッチ</h4>
-                        <p class="mb-35px">音量ボタンでタイムを計測できる、ボタンの感触を再現したリアルなストップウォッチです。
-                            音量ボタンで操作できるため、ストレスなくタイム計測ができます！<br>
-                            また、計測したタイムを自動でアプリ内に保存されるため、記録忘れ等がなくなります！
-                        </p>
-                        <a href="https://apps.apple.com/jp/app/handy-stopwatch/id6504489579" class="btn btn-medium btn-base-color text-uppercase-inherit fw-600 primary-font">Handy Stopwatchのダウンロードはこちらから</a>
-                    </div>
-                </div>
+
+        <!-- 音クロック -->
+        <div class="card" onclick="window.open('https://apps.apple.com/jp/app/%E9%9F%B3%E3%82%AF%E3%83%AD%E3%83%83%E3%82%AF/id6504010049','_blank')">
+            <div class="card-img">
+                <img src="images/card_oto_clock.jpg" alt="音クロック">
             </div>
-        </section>
-        <!-- end section -->
-        <!-- start section -->
-        <section class="bg-nero-grey">
-            <div class="container">
-                <div class="row">
-                    <div class="col-12 overlap-section">
-                        <div class="overlap-section-inner"> 
-                            <div class="swiper magic-cursor drag-cursor" data-slider-options='{ "slidesPerView": 1, "spaceBetween": 0, "effect": "fade", "speed": 500, "loop": true, "autoplay": { "delay": 3000, "disableOnInteraction": false },  "pagination": { "el": ".slider-three-slide-pagination", "clickable": true, "dynamicBullets": true }, "navigation": { "nextEl": ".slider-one-slide-next-1", "prevEl": ".slider-one-slide-prev-1" }, "keyboard": { "enabled": true, "onlyInViewport": true }, "breakpoints": { "992": { "slidesPerView": 1 }, "768": { "slidesPerView": 1 }, "320": { "slidesPerView": 1 } } }'>
-                                <div class="swiper-wrapper">
-                                    <!-- start slider item --> 
-                                    <div class="swiper-slide">
-                                        <img src="images/handy_stopwatch_1_1190*700.png" class="w-100" alt="" />
-                                    </div>
-                                    <!-- end slider item -->
-                                    <!-- start slider item -->
-                                    <div class="swiper-slide">
-                                        <img src="images/handy_stopwatch_2_1190*700.png" class="w-100" alt="" />
-                                    </div>
-                                    <!-- end slider item --> 
-                                    <!-- start slider item -->
-                                    <div class="swiper-slide">
-                                        <img src="images/handy_stopwatch_3_1190*700.png" class="w-100" alt="" />
-                                    </div>
-                                    <!-- end slider item --> 
-                                    <!-- end slider item --> 
-                                </div> 
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-12 mt-8 lg-mt-10 text-center">
-                        <a href="https://apps.apple.com/jp/app/handy-stopwatch/id6504489579" target="_blank">
-                            <img src="images/handy_stopwatch_770*110.gif" alt="">
-                        </a>
-                    </div>
-                </div>
+            <div class="card-body">
+                <p class="card-cat"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="opacity:.5;vertical-align:middle;margin-right:4px;margin-bottom:1px"><circle cx="6" cy="6" r="2"/><path d="M6 1v2M6 9v2M1 6h2M9 6h2M2.93 2.93l1.41 1.41M7.66 7.66l1.41 1.41M2.93 9.07l1.41-1.41M7.66 4.34l1.41-1.41"/></svg>Utilities</p>
+                <p class="card-name">音クロック</p>
+                <p class="card-desc">チームで使える音声ペースタイマー。サイクル・人数を設定するだけで練習をサポートします。</p>
+                <a href="https://apps.apple.com/jp/app/%E9%9F%B3%E3%82%AF%E3%83%AD%E3%83%83%E3%82%AF/id6504010049"
+                   target="_blank" rel="noopener" class="card-btn"
+                   onclick="event.stopPropagation();">
+                    詳細を見る <span class="arr">→</span>
+                </a>
             </div>
-        </section>
-        <!-- end section -->
-        <!-- start section -->
-        <section class="bg-dark-gray background-position-center-top" style="background-image: url('../../Desktop/APPGALLERY/templete/html/images/demo-architecture-dotted-pattern.svg')">
-            <div class="container">
-                <div class="row row-cols-1 row-cols-md-2 mb-6">
-                    <div class="col text-center text-md-start">
-                        <h4 class="fw-600 text-white">Handy Stopwatch Gallery</h4>
-                    </div>
-<!--                    <div class="col last-paragraph-no-margin text-center text-md-start">-->
-<!--                        <p>シンプル且つ多機能なストップウォッチ</p>-->
-<!--                    </div>-->
-                </div>
-                <div class="row mb-6">
-                    <div class="col px-0 sm-ps-15px sm-pe-15px">
-                        <ul class="image-gallery-style-01 gallery-wrapper grid grid-3col xl-grid-3col lg-grid-3col md-grid-2col sm-grid-1col xs-grid-1col gutter-extra-large">
-                            <li class="grid-sizer"></li>
-                            <!-- start gallery item -->
-                            <li class="grid-item grid-item-double transition-inner-all">
-                                <div class="gallery-box">
-                                    <a href="images/handy_stopwatch_1_785*785.png" data-group="lightbox-gallery" title="Handy Stopwatch">
-                                        <div class="position-relative gallery-image bg-white overflow-hidden">
-                                            <img src="images/handy_stopwatch_1_785*785.png" alt="" />
-                                            <div class="d-flex align-items-center justify-content-center position-absolute top-0px left-0px w-100 h-100 gallery-hover move-bottom-top">
-<!--                                                <div class="d-flex align-items-center justify-content-center w-50px h-50px rounded-circle bg-dark-gray">-->
-<!--                                                    <i class="feather icon-feather-search text-white icon-small"></i>-->
-<!--                                                </div>-->
-                                            </div>
-                                        </div>
-                                    </a>
-                                </div>
-                            </li>
-                            <!-- end gallery item -->
-                            <!-- start gallery item -->
-                            <li class="grid-item transition-inner-all">
-                                <div class="gallery-box overflow-hidden">
-                                    <a href="images/handy_stopwatch_2_785*785.png" data-group="lightbox-gallery" title="Handy Stopwatch">
-                                        <div class="position-relative gallery-image bg-white overflow-hidden">
-                                            <img src="images/handy_stopwatch_2_785*785.png" alt="" />
-                                            <div class="d-flex align-items-center justify-content-center position-absolute top-0px left-0px w-100 h-100 gallery-hover move-bottom-top">
-<!--                                                <div class="d-flex align-items-center justify-content-center w-50px h-50px rounded-circle bg-dark-gray">-->
-<!--                                                    <i class="feather icon-feather-search text-white icon-small"></i>-->
-<!--                                                </div>-->
-                                            </div>
-                                        </div>
-                                    </a>
-                                </div>
-                            </li>
-                            <!-- end gallery item -->
-                            <!-- start gallery item -->
-                            <li class="grid-item transition-inner-all">
-                                <div class="gallery-box overflow-hidden">
-                                    <a href="images/handy_stopwatch_3_785*785.png" data-group="lightbox-gallery" title="Handy Stopwatch">
-                                        <div class="position-relative gallery-image bg-white overflow-hidden">
-                                            <img src="images/handy_stopwatch_3_785*785.png" alt="" />
-                                            <div class="d-flex align-items-center justify-content-center position-absolute top-0px left-0px w-100 h-100 gallery-hover move-bottom-top">
-<!--                                                <div class="d-flex align-items-center justify-content-center w-50px h-50px rounded-circle bg-dark-gray">-->
-<!--                                                    <i class="feather icon-feather-search text-white icon-small"></i>-->
-<!--                                                </div>-->
-                                            </div>
-                                        </div>
-                                    </a>
-                                </div>
-                            </li>
-                            <!-- end gallery item -->
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <footer class="bg-nero-grey pb-0 pt-0 md-pt-0 sm-pt-0 xs-pt-0 background-position-center-top" style="background-image: url('../../Desktop/APPGALLERY/templete/html/images/demo-architecture-dotted-pattern.svg')">
-            <div class="footer-bottom p-20px border-color-transparent-white-light">
-                <div class="container">
-                    <div class="row align-items-center">
-                        <div class="col-lg-7 text-center text-lg-start md-mb-10px">
-                            <ul class="footer-navbar fs-15 lh-normal">
-                                <li class="nav-item active"><a href="https://apps.apple.com/jp/app/handy-stopwatch/id6504489579" target="_blank" class="nav-link">Handy Stopwatch</a></li>
-                                <li class="nav-item"><a href="https://apps.apple.com/jp/app/%E9%9F%B3%E3%82%AF%E3%83%AD%E3%83%83%E3%82%AF/id6504010049" target="_blank" class="nav-link">音クロック</a></li>
-                            </ul>
-                        </div>
-                        <div class="col-lg-5 text-center text-lg-end">
-                            <span class="fs-15">&copy; 2024 Yu Hiraoka</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </footer>
-        <!-- end footer -->
-         <!-- start scroll progress -->
-        <div class="scroll-progress d-none d-xxl-block">
-          <a href="#" class="scroll-top" aria-label="scroll">
-            <span class="scroll-text">Scroll</span><span class="scroll-line"><span class="scroll-point"></span></span>
-          </a>
         </div>
-        <!-- end scroll progress -->
-        <!-- javascript libraries -->
-        <script type="text/javascript" src="js/jquery.js"></script>
-        <script type="text/javascript" src="js/vendors.min.js"></script>
-        <script type="text/javascript" src="js/main.js"></script>
-    </body>
+
+        <!-- Handy Counter -->
+        <div class="card" onclick="window.open('https://apps.apple.com/jp/app/handy-counter-%E9%9F%B3%E9%87%8F%E3%83%9C%E3%82%BF%E3%83%B3%E3%81%A7%E3%82%AB%E3%82%A6%E3%83%B3%E3%83%88/id6520395429','_blank')">
+            <div class="card-img">
+                <img src="images/card_handy_counter.jpg" alt="Handy Counter">
+            </div>
+            <div class="card-body">
+                <p class="card-cat"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="opacity:.5;vertical-align:middle;margin-right:4px;margin-bottom:1px"><circle cx="6" cy="6" r="2"/><path d="M6 1v2M6 9v2M1 6h2M9 6h2M2.93 2.93l1.41 1.41M7.66 7.66l1.41 1.41M2.93 9.07l1.41-1.41M7.66 4.34l1.41-1.41"/></svg>Utilities</p>
+                <p class="card-name">Handy Counter</p>
+                <p class="card-desc">音量ボタンでカウントできるシンプルなカウンター。片手で操作できるので現場での数え作業に最適。</p>
+                <a href="https://apps.apple.com/jp/app/handy-counter-%E9%9F%B3%E9%87%8F%E3%83%9C%E3%82%BF%E3%83%B3%E3%81%A7%E3%82%AB%E3%82%A6%E3%83%B3%E3%83%88/id6520395429"
+                   target="_blank" rel="noopener" class="card-btn"
+                   onclick="event.stopPropagation();">
+                    詳細を見る <span class="arr">→</span>
+                </a>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+    <ul class="footer-links">
+        <li><a href="handy-stopwatch.html">Handy Stopwatch</a></li>
+        <li><a href="https://apps.apple.com/jp/app/%E9%9F%B3%E3%82%AF%E3%83%AD%E3%83%83%E3%82%AF/id6504010049"
+               target="_blank" rel="noopener">音クロック</a></li>
+        <li><a href="https://apps.apple.com/jp/app/handy-counter-%E9%9F%B3%E9%87%8F%E3%83%9C%E3%82%BF%E3%83%B3%E3%81%A7%E3%82%AB%E3%82%A6%E3%83%B3%E3%83%88/id6520395429"
+               target="_blank" rel="noopener">Handy Counter</a></li>
+    </ul>
+    <span class="footer-copy">© 2024–2026 Yu Hiraoka</span>
+</footer>
+
+<script>
+(function () {
+    /* cursor glow */
+    var g = document.getElementById('glow');
+    document.addEventListener('mousemove', function (e) {
+        g.style.left = e.clientX + 'px';
+        g.style.top  = e.clientY + 'px';
+    });
+
+    /* letter scramble */
+    var NAME   = 'YU HIRAOKA';
+    var CHARS  = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    var COLORS = ['#2997ff','#bf5af2','#ff453a','#ffd60a','#32d74b',
+                  '#ff9f0a','#5ac8f5','#ff375f','#2997ff'];
+
+    var nameEl = document.getElementById('hero-name');
+    var roleEl = document.getElementById('hero-role');
+    var spans  = [];
+    var ci = 0;
+
+    NAME.split('').forEach(function (ch) {
+        var s = document.createElement('span');
+        if (ch === ' ') { s.className = 'hl-sp'; nameEl.appendChild(s); return; }
+        s.className = 'hl';
+        s.dataset.final = ch;
+        s.dataset.color = COLORS[ci % COLORS.length];
+        s.textContent = CHARS[Math.floor(Math.random() * CHARS.length)];
+        nameEl.appendChild(s);
+        spans.push(s);
+        ci++;
+    });
+
+    var settled = 0;
+    spans.forEach(function (sp, i) {
+        setTimeout(function () {
+            var f = 0, FRAMES = 20, TICK = 40;
+            var iv = setInterval(function () {
+                if (f >= FRAMES) {
+                    sp.textContent = sp.dataset.final;
+                    clearInterval(iv);
+                    if (++settled === spans.length) onDone();
+                    return;
+                }
+                sp.textContent = CHARS[Math.floor(Math.random() * CHARS.length)];
+                f++;
+            }, TICK);
+        }, 260 + i * 85);
+    });
+
+    function onDone() {
+        roleEl.classList.add('show');
+        if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) magnetic();
+    }
+
+    function magnetic() {
+        document.addEventListener('mousemove', function (e) {
+            spans.forEach(function (sp) {
+                var r = sp.getBoundingClientRect();
+                var dx = e.clientX - (r.left + r.width / 2);
+                var dy = e.clientY - (r.top  + r.height / 2);
+                var d  = Math.sqrt(dx*dx + dy*dy);
+                if (d < 160 && d > 0) {
+                    var p = (1 - d/160) * 30;
+                    sp.style.transform = 'translate('+(-dx/d*p)+'px,'+(-dy/d*p)+'px)';
+                    sp.style.color = sp.dataset.color;
+                } else {
+                    sp.style.transform = '';
+                    sp.style.color = '';
+                }
+            });
+        });
+    }
+    /* ─── scroll progress ─── */
+    var prog = document.getElementById('scroll-progress');
+    if (prog) {
+        window.addEventListener('scroll', function() {
+            var h = document.body.scrollHeight - window.innerHeight;
+            if (h > 0) prog.style.width = Math.min(window.scrollY / h * 100, 100) + '%';
+        }, { passive: true });
+    }
+
+    /* ─── card stagger reveal ─── */
+    var cards = document.querySelectorAll('.card');
+    if ('IntersectionObserver' in window) {
+        var cardObs = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (!entry.isIntersecting) return;
+                var i = Array.from(cards).indexOf(entry.target);
+                entry.target.style.transitionDelay = (i % 3 * 0.12) + 's';
+                entry.target.classList.add('visible');
+                cardObs.unobserve(entry.target);
+            });
+        }, { threshold: 0.12 });
+        cards.forEach(function(c) { cardObs.observe(c); });
+    } else {
+        cards.forEach(function(c) { c.classList.add('visible'); });
+    }
+})();
+</script>
+</body>
 </html>
