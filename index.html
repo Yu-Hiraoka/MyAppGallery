@@ -114,8 +114,13 @@
         .nav-cta:hover { opacity: .72; }
 
         @media (max-width: 740px) {
-            nav { padding: 0 20px; }
+            nav { padding: 0 20px; position: relative; }
             .nav-sep, .nav-products { display: none; }
+            .nav-cta {
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
+            }
         }
 
         /* ═══ CURSOR GLOW ═══ */
